@@ -5,6 +5,14 @@ const app = express();
 
 app.use(express.json());
 
+// Middleware para manejar CORS
+app.use((req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', '*'); // Permitir todos los orígenes
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS'); // Métodos permitidos
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type'); // Encabezados permitidos
+  next();
+});
+
 app.post('/refresh-token', async (req, res) => {
   const { refreshToken, clientId, clientSecret } = req.body;
 
