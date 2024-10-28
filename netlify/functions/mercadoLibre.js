@@ -11,6 +11,14 @@ let accessKey = 'APP_USR-603047614175354-102811-3d7a22c703a1de4ff108f3955a381c08
 let tokenLastUpdated = 0;
 let refreshToken = 'TG-671fb08470db690001dc8caa-244943571';
 
+// Configuración de CORS para todas las respuestas
+app.use((req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', '*'); // Permitir todos los orígenes; usa '*' o el origen específico
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  next();
+});
+
 // Función para refrescar el token
 async function refreshTokenFunction() {
   const url = 'https://api.mercadolibre.com/oauth/token';
