@@ -55,7 +55,7 @@ async function refreshTokenIfNeeded() {
 }
 
 // Ruta principal para manejar las solicitudes del frontend
-app.get('/.netlify/functions/mercadoLibre', async (req, res) => {
+app.get('https://philipscofunctions.netlify.app/.netlify/functions/mercadoLibre', async (req, res) => {
   try {
     const productUrl = req.query.url;
     const itemIdMatch = productUrl.match(/MCO-\d+/) || productUrl.match(/\/MCO\d+/) || productUrl.match(/#.*?MCO(\d+)/) || productUrl.match(/\/p\/MCO(\d+)/);
