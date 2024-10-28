@@ -1,26 +1,35 @@
 const express = require('express');
 const axios = require('axios');
 const serverless = require('serverless-http');
+
 const app = express();
 
 app.use(express.json());
 
-app.post('/get-item-data', async (req, res) => {
-  const { itemId, accessToken } = req.body;
+app.post('/.netlify/functions/item-data', async (req, res) => {
+  const { accessToken, itemId } = req.body;
 
-  const itemUrl = `https://api.mercadolibre.com/items/${itemId}?include_attributes=all`;
+  // Agregar encabezados CORS
+  res.setHeader('Access-Control-Allow-Origin', 'https://www.tienda.philips.com.co');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+
+  // Manejar preflight requests
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+
   try {
-    const response = await axios.get(itemUrl, {
+    const response = await axios.get(`https://api.mercadolibre.com/items/${itemId}?include_attributes=all`, {
       headers: {
-        "Authorization": `Bearer ${accessToken}`,
-        "Content-Type": 'application/json'
-      }
+        Authorization: `Bearer ${accessToken}`,
+      },
     });
-    
+
     res.json(response.data);
   } catch (error) {
-    console.error('Error al obtener los datos del artículo:', error);
-    res.status(500).json({ error: 'Error al obtener los datos del artículo' });
+    console.error(error);
+    res.status(500).json({ error: 'Error fetching item data' });
   }
 });
 

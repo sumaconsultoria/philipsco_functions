@@ -1,31 +1,38 @@
 const express = require('express');
 const axios = require('axios');
 const serverless = require('serverless-http');
+
 const app = express();
 
 app.use(express.json());
 
-app.post('/refresh-token', async (req, res) => {
-  const { refreshToken, clientId, clientSecret } = req.body;
+app.post('/.netlify/functions/token-refresh', async (req, res) => {
+  const { clientId, clientSecret, refreshToken } = req.body;
 
-  const url = 'https://api.mercadolibre.com/oauth/token';
+  // Agregar encabezados CORS
+  res.setHeader('Access-Control-Allow-Origin', 'https://www.tienda.philips.com.co');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+
+  // Manejar preflight requests
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+
   try {
-    const response = await axios.post(url, new URLSearchParams({
+    const response = await axios.post('https://api.mercadolibre.com/oauth/token', new URLSearchParams({
       grant_type: 'refresh_token',
       client_id: clientId,
       client_secret: clientSecret,
       refresh_token: refreshToken,
-    }), {
+    }).toString(), {
       headers: {
-        'Accept': 'application/json',
         'Content-Type': 'application/x-www-form-urlencoded',
       },
     });
 
-    res.json({
-      accessToken: response.data.access_token,
-      refreshToken: response.data.refresh_token,
-    });
+    // Enviar la respuesta con el nuevo access token
+    res.json(response.data);
   } catch (error) {
     console.error('Error al refrescar el token:', error);
     res.status(500).json({ error: 'Error al refrescar el token' });
