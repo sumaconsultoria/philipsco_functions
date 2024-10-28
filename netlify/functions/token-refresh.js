@@ -3,21 +3,24 @@ const axios = require('axios');
 const serverless = require('serverless-http');
 
 const app = express();
-
 app.use(express.json());
 
-app.post('/.netlify/functions/token-refresh', async (req, res) => {
-  const { clientId, clientSecret, refreshToken } = req.body;
-
-  // Agregar encabezados CORS
+// Middleware para habilitar CORS
+app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', 'https://www.tienda.philips.com.co');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-
-  // Manejar preflight requests
+  
+  // Verificar si es una solicitud preflight y responder de inmediato
   if (req.method === 'OPTIONS') {
-    return res.status(200).end();
+    return res.status(204).end();
   }
+  
+  next();
+});
+
+app.post('/.netlify/functions/token-refresh', async (req, res) => {
+  const { clientId, clientSecret, refreshToken } = req.body;
 
   try {
     const response = await axios.post('https://api.mercadolibre.com/oauth/token', new URLSearchParams({
